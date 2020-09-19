@@ -2,14 +2,15 @@
 
 ## summary
 
-A gh repo to test GIT_TOKENs with github's [`gh`](https://github.com/cli/cli) cli command.
+A gh repo to test GITHUB_TOKENs with github's [`gh`](https://github.com/cli/cli) cli command.
 
 ## setup
 
 First, create a [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) and [test it](https://docs.github.com/en/rest/overview/other-authentication-methods#basic-authentication):
 
 ```bash
-github_username=mcarifio  # you name here
+github_username=mcarifio  # your name here
+github_username=$USER  # alternatively...
 xdg-open https://github.com/settings/tokens # might have to login as ${github_username}
 token=${alphanums} # token you created
 curl -u ${github_username}:${token} https://api.github.com/user | jq .
@@ -24,7 +25,7 @@ Next, install [`gh`](https://github.com/cli/cli/blob/trunk/docs/install_linux.md
 ```bash
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 eval $(apt-config shell arch APT::Architecture) # amd64
-sc=$(lsb_release -sc) # eoan
+sc=$(lsb_release -sc) # shortcode eoan
 echo "deb [arch=${arch}] https://cli.github.com/packages ${sc} main" | sudo tee /etc/apt/sources.list.d/gh.list
 sudo apt update
 sudo apt upgrade
@@ -38,12 +39,13 @@ Optionally, you can configure `gh` locally:
 gh config set git_protocol ssh
 ```
 
-The `ssh` default assumes you have cut an ssh keypair and uploaded the public half to github. You've also crafted an ssh config stanza:
+The `ssh` protocol assumes you have cut an ssh keypair and uploaded the public half to github. You've also crafted an ssh config stanza:
 
 ```bash
 Host github.com:
   RequestTTY=no
   User=git
+  IdentitiesOnly=yes
   IdentityFile=~/.ssh/keys.d/git@github.com_rsa
 ```
 and tested _that_ with:
@@ -56,9 +58,13 @@ Hi mcarifio! You've successfully authenticated, but GitHub does not provide shel
 Almost there! Finally let's see if gh respects your personal token and it's privileges:
 
 ```bash
-GITHUB_TOKEN=${token} api https://api.github.com/user # redo curl command above
+GITHUB_TOKEN=${token} gh api https://api.github.com/user # redo curl command above
 GITHUB_TOKEN=${token} gh repo view gh-smoketest # gets this README.md
 ```
+## other tests
+
+I'm new to `gh`. You tell me.
+
 
 ## usage
 
@@ -79,7 +85,11 @@ export GITHUB_TOKEN=0000f0f7259fd3348efe030e6bbbbacdc58e3fff
 export github_user=$(gh api https://api.github.com/user | jq .login)
 ```
 
-and `direnv allow .`, then cd'ing into this directory establishes the right `GITHUB_TOKEN` and it's associated username.
+and `direnv allow .`, then cd'ing into this directory establishes the right `GITHUB_TOKEN` and it's associated `github_username`.
+
+## also
+
+There's also a `gh login` command, but I haven't looked at it yet.
 
 
 
